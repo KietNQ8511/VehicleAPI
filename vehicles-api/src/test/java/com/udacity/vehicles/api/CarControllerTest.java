@@ -97,7 +97,7 @@ public class CarControllerTest {
         mvc.perform(get("/cars"))
         	.andExpect(status().isOk())
         	.andExpect(MockMvcResultMatchers.jsonPath("$._embedded").exists())
-        	.andExpect(MockMvcResultMatchers.jsonPath("$._embedded.carList[0].details.manufacturer.name").value("Chevrolet"))
+        	.andExpect(MockMvcResultMatchers.jsonPath("$._embedded.carList[0].details.manufacturer.code").value(101))
         	.andDo(MockMvcResultHandlers.print());
 			
     }
@@ -116,8 +116,8 @@ public class CarControllerTest {
     	carService.save(car);
     	mvc.perform(get("/cars/1"))
     		.andExpect(status().isOk())
-    		.andExpect(MockMvcResultMatchers.jsonPath("details.model").value("Impala"))
-    		.andDo(MockMvcResultHandlers.print());
+    		.andDo(MockMvcResultHandlers.print())
+    		.andExpect(MockMvcResultMatchers.jsonPath("details.externalColor").value("white"));
     }
 
     /**
@@ -134,8 +134,8 @@ public class CarControllerTest {
     	Car car = getCar();
     	carService.save(car);
     	mvc.perform(delete("/cars/3"))
-    		.andExpect(status().isNoContent())
-    		.andDo(MockMvcResultHandlers.print());
+    	.andDo(MockMvcResultHandlers.print())
+    		.andExpect(status().isNoContent());
     	
     }
 
