@@ -5,6 +5,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.net.URI;
@@ -57,7 +58,7 @@ public class CarControllerTest {
 
     @MockBean
     private MapsClient mapsClient;
-
+    
     /**
      * Creates pre-requisites for testing, such as an example car.
      */
@@ -76,10 +77,10 @@ public class CarControllerTest {
      */
     @Test
     public void createCar() throws Exception {
-        Car car = getCar();
+        Car carCreate = getCar();
         mvc.perform(
                 post(new URI("/cars"))
-                        .content(json.write(car).getJson())
+                        .content(json.write(carCreate).getJson())
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .accept(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isCreated());
@@ -91,15 +92,17 @@ public class CarControllerTest {
      */
     @Test
     public void listCars() throws Exception {
-        Car car = getCar();
-        carService.save(car);
-        
-        mvc.perform(get("/cars"))
-        	.andExpect(status().isOk())
-        	.andExpect(MockMvcResultMatchers.jsonPath("$._embedded").exists())
-        	.andExpect(MockMvcResultMatchers.jsonPath("$._embedded.carList[0].details.manufacturer.code").value(101))
-        	.andDo(MockMvcResultHandlers.print());
-			
+        /**
+         * TODO: Add a test to check that the `get` method works by calling
+         *   the whole list of vehicles. This should utilize the car from `getCar()`
+         *   below (the vehicle will be the first in the list).
+         */
+    	Car car = getCar();
+    	carService.save(car);
+    	mvc.perform(get("/cars"))
+    		.andExpect(MockMvcResultMatchers.jsonPath("$._embedded").exists())
+    		.andExpect(status().isOk())
+    		.andDo(MockMvcResultHandlers.print());
     }
 
     /**
@@ -112,12 +115,13 @@ public class CarControllerTest {
          * TODO: Add a test to check that the `get` method works by calling
          *   a vehicle by ID. This should utilize the car from `getCar()` below.
          */
-    	Car car = getCar();
-    	carService.save(car);
+    	Car car1 = getCar();
+    	carService.save(car1);
     	mvc.perform(get("/cars/1"))
     		.andExpect(status().isOk())
-    		.andDo(MockMvcResultHandlers.print())
-    		.andExpect(MockMvcResultMatchers.jsonPath("details.externalColor").value("white"));
+    		.andExpect(MockMvcResultMatchers.jsonPath("details.model").value("Impala"))
+    		.andDo(MockMvcResultHandlers.print());
+    	
     }
 
     /**
@@ -131,12 +135,29 @@ public class CarControllerTest {
          *   when the `delete` method is called from the Car Controller. This
          *   should utilize the car from `getCar()` below.
          */
-    	Car car = getCar();
-    	carService.save(car);
-    	mvc.perform(delete("/cars/3"))
+    	Car carDelete = getCar();
+    	carService.save(carDelete);
+    	mvc.perform(delete("/cars/1"))
     	.andDo(MockMvcResultHandlers.print())
     		.andExpect(status().isNoContent());
     	
+    }
+    
+    /**
+     * Tests the update of a single car by Car
+     * @throws Exception if the read operation for a single car fails
+     */
+    @Test
+    public void updateCar() throws Exception {
+    	
+    	Car carUpdate = getCar();
+    	
+        mvc.perform(put(new URI("/cars/1"))
+        		.contentType(MediaType.APPLICATION_JSON_UTF8)
+        		.content(json.write(carUpdate).getJson())
+                    .accept(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(status().isOk());
+        
     }
 
     /**

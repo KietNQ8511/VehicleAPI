@@ -6,14 +6,17 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import com.udacity.vehicles.domain.car.Car;
 import com.udacity.vehicles.service.CarService;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import javax.validation.Valid;
 
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Implements a REST-based controller for the Vehicles API.
  */
 @RestController
-@RequestMapping("/cars")
+@RequestMapping(value = "/cars", produces = {MediaType.APPLICATION_JSON_VALUE})
 class CarController {
 
     private final CarService carService;
@@ -63,7 +66,6 @@ class CarController {
          * TODO: Use the `assembler` on that car and return the resulting output.
          *   Update the first line as part of the above implementing.
          */
-    	
     	Car car = carService.findById(id);
         return assembler.toResource(car);
     }
@@ -81,8 +83,8 @@ class CarController {
          * TODO: Use the `assembler` on that saved car and return as part of the response.
          *   Update the first line as part of the above implementing.
          */
-    	Car carSaved = carService.save(car);
-        Resource<Car> resource = assembler.toResource(carSaved);
+    	Car savedCar = carService.save(car);
+        Resource<Car> resource = assembler.toResource(savedCar);
         return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
     }
 
@@ -101,9 +103,8 @@ class CarController {
          *   Update the first line as part of the above implementing.
          */
     	car.setId(id);
-    	
-    	Car carSaved = carService.save(car);
-        Resource<Car> resource = assembler.toResource(carSaved);
+    	Car updatedCar = carService.save(car);
+        Resource<Car> resource = assembler.toResource(updatedCar);
         return ResponseEntity.ok(resource);
     }
 
